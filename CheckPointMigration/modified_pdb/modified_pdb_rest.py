@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/python3.7
 from bottle import route, run, template
 import time, subprocess, json, sys
 import modified_pdb as mpdb
@@ -20,6 +20,7 @@ def start(prog_name=''):
                 if not os.path.exists(prog_name):
                         print('Error:', prog_name, 'does not exist')
                         sys.exit(1)
+                sys.stdin = open('input.txt')
                 pdb = mpdb.Pdb()
                 while True:
                         pdb._runscript(prog_name)
