@@ -30,8 +30,9 @@ def start(prog_name=''):
         else:
                 return template('Goto <a>{{redir_url}}</a>. Missing prog_name', redir_url="http://127.0.0.1:38081/test.py")
 ############################################################
-
-
+@route('/hello/')
+def start():
+	print("Hello")
 
 ##########################################################################################
 run(host=IP, port=PORT, debug=True)

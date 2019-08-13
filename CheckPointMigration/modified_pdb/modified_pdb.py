@@ -1119,13 +1119,15 @@ class Pdb(bdb.Bdb, cmd.Cmd):
     do_exit = do_quit
 
     def do_EOF(self, arg):
+        
         """EOF
         Handles the receipt of EOF as a command.
         """
-        self.message('')
-        self._user_requested_quit = True
-        self.set_quit()
+        self.message('EOF Received')
+        #self._user_requested_quit = True
+        #self.set_quit()
         return 1
+        #do_p(arg)
 
     def do_args(self, arg):
         """a(rgs)
