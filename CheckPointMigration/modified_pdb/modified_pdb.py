@@ -141,7 +141,7 @@ class Pdb(bdb.Bdb, cmd.Cmd):
                  nosigint=False, readrc=True):
         bdb.Bdb.__init__(self, skip=skip)
         cmd.Cmd.__init__(self, completekey, stdin, stdout)
-        if stdout:
+        if stdout or stdin:
             self.use_rawinput = 0
         self.prompt = '(Pdb) '
         self.aliases = {}
