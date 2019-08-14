@@ -139,15 +139,9 @@ class Pdb(bdb.Bdb, cmd.Cmd):
 
     def __init__(self, completekey='tab', stdin=None, stdout=None, skip=None,
                  nosigint=False, readrc=True):
-<<<<<<< HEAD
         bdb.Bdb.__init__(self, skip=skip)
         cmd.Cmd.__init__(self, completekey, stdin, stdout)
         if stdout or stdin:
-=======
-        self.bdbObj=bdb.Bdb.__init__(self, skip=skip)
-        self.cmdObj=cmd.Cmd.__init__(self, completekey, stdin, stdout)
-        if stdout:
->>>>>>> dd7015ea695802883f80102b8aafa50ab323bdd8
             self.use_rawinput = 0
         self.prompt = '(Pdb) '
         self.aliases = {}
