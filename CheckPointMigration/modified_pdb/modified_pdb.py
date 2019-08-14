@@ -139,9 +139,15 @@ class Pdb(bdb.Bdb, cmd.Cmd):
 
     def __init__(self, completekey='tab', stdin=None, stdout=None, skip=None,
                  nosigint=False, readrc=True):
+<<<<<<< HEAD
         bdb.Bdb.__init__(self, skip=skip)
         cmd.Cmd.__init__(self, completekey, stdin, stdout)
         if stdout or stdin:
+=======
+        self.bdbObj=bdb.Bdb.__init__(self, skip=skip)
+        self.cmdObj=cmd.Cmd.__init__(self, completekey, stdin, stdout)
+        if stdout:
+>>>>>>> dd7015ea695802883f80102b8aafa50ab323bdd8
             self.use_rawinput = 0
         self.prompt = '(Pdb) '
         self.aliases = {}
@@ -999,6 +1005,7 @@ class Pdb(bdb.Bdb, cmd.Cmd):
         (either in a function that is called or in the current
         function).
         """
+        self.message("s(tep) Received ("+arg+")")
         self.set_step()
         return 1
     do_s = do_step
@@ -1008,6 +1015,7 @@ class Pdb(bdb.Bdb, cmd.Cmd):
         Continue execution until the next line in the current function
         is reached or it returns.
         """
+        self.message('n(ext) Received ('+arg+")")
         self.set_next(self.curframe)
         return 1
     do_n = do_next
@@ -1119,13 +1127,16 @@ class Pdb(bdb.Bdb, cmd.Cmd):
     do_exit = do_quit
 
     def do_EOF(self, arg):
+        
         """EOF
         Handles the receipt of EOF as a command.
         """
-        self.message('')
-        self._user_requested_quit = True
-        self.set_quit()
-        return 1
+        self.message('EOF Received ('+arg+")")
+        #self._user_requested_quit = True
+        #self.set_quit()
+        #self.do_interact(None)
+        return 0
+        #do_p(arg)
 
     def do_args(self, arg):
         """a(rgs)
