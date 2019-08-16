@@ -726,6 +726,12 @@ class Pdb(bdb.Bdb, cmd.Cmd):
         sys.settrace(self.trace_dispatch)
         self.lastcmd = p.lastcmd
 
+    def do_pause(self, arg):
+        print >> self.stdout , "pause"
+        #self.set_quit()
+        return 0
+    do_pu = do_pause
+
     def do_quit(self, arg):
         self._user_requested_quit = 1
         self.set_quit()
