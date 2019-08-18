@@ -11,23 +11,21 @@ Documents		--> Reports and posters
 ## Setup instructions
 Required python packages
 `sudo -E pip install bottle, bottledaemon`
+`mkdir -f /home/mininet/GIT`
+`git clone https://github.com/subhrendu1987/NFV_Containernet.git`
 ## Instructions
 ### Create Controller docker
 `sudo docker build NFV/Docker/ryu-docker -t ryu-docker`
 ### Execute command in a node
-``
-
-
-
-`cd ~/ScalableSDN/util;sudo python mnexecWrapper.py -h`
-`cd ~/ScalableSDN/util;sudo python mnexecWrapper.py -l`
-`cd ~/ScalableSDN/util;sudo python mnexecWrapper.py -n <node_name> -cmd <cmd>`
+`cd /home/mininet/GIT/NFV_Containernet/util;sudo python mnexecWrapper.py -h`
+`cd /home/mininet/GIT/NFV_Containernet/util;sudo python mnexecWrapper.py -l`
+`cd /home/mininet/GIT/NFV_Containernet/util;sudo python mnexecWrapper.py -n <node_name> -cmd <cmd>`
 ### Invoke data center clos tree topology in mininet
-`cd ~/ScalableSDN/mininet_script/TestTopo;sudo python topo-clos-like.py`
+`cd /home/mininet/GIT/NFV_Containernet/mininet_script/TestTopo;sudo python topo-clos-like.py`
 ### Check mininet stat using REST
 `http://172.16.117.50:8081/switches`
-### Enforce switch-controller assignment based on ~/ScalableSDN/Controllers/cc_client/switch_controller_config.json
-`cd ~/ScalableSDN/BaysianOptimization; sudo python mininetChangeAssignment.py`
+### Enforce switch-controller assignment based on /home/mininet/GIT/NFV_Containernet/Controllers/cc_client/switch_controller_config.json
+`cd /home/mininet/GIT/NFV_Containernet/BaysianOptimization; sudo python mininetChangeAssignment.py`
 
 
 ### View log of c0

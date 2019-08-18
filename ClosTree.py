@@ -1,4 +1,4 @@
-"""ClosTree topology by Howar31
+"""ClosTree topology by Subhrendu
 http://www.hoggnet.com/NWWPics/CLOS%20Network.jpg
 
 sudo mn --custom ~/mininet/custom/topo-clos-like.py --topo clostree --switch ovs-stp --controller=remote,ip=127.0.0.1,port=6633
