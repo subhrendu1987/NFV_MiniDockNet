@@ -9,23 +9,30 @@ results			-->
 util			--> Plots generation from results
 Documents		--> Reports and posters
 ## Setup instructions
-Required python packages
-`sudo -E pip install bottle, bottledaemon`
+### Required python packages
+`sudo -E pip install bottle, bottledaemon numpy psutil matplotlib scipy termcolor`
+### Git Repo
 `mkdir -f /home/mininet/GIT`
 `git clone https://github.com/subhrendu1987/NFV_Containernet.git`
-## Instructions
+### PATH variable
+`NFVCONTAINERNET="/home/mininet/GIT/NFV_Containernet"`
+## Build Required containers
 ### Create Controller docker
-`sudo docker build NFV/Docker/ryu-docker -t ryu-docker`
-### Execute command in a node
-`cd /home/mininet/GIT/NFV_Containernet/util;sudo python mnexecWrapper.py -h`
-`cd /home/mininet/GIT/NFV_Containernet/util;sudo python mnexecWrapper.py -l`
-`cd /home/mininet/GIT/NFV_Containernet/util;sudo python mnexecWrapper.py -n <node_name> -cmd <cmd>`
+`sudo docker build $NFVCONTAINERNET/Docker/ryu-docker -t ryu-docker`
+### Create OVS docker
+`sudo docker build $NFVCONTAINERNET/Docker/ovs-docker -t ovs-docker`
+## Execute Experiments
 ### Invoke data center clos tree topology in mininet
-`cd /home/mininet/GIT/NFV_Containernet/mininet_script/TestTopo;sudo python topo-clos-like.py`
+`cd $NFVCONTAINERNET/mininet_script/DockerTopo;sudo python topo-clos-like.py`
 ### Check mininet stat using REST
 `http://172.16.117.50:8081/switches`
+
+### Execute command in a node
+`cd $NFVCONTAINERNET/util;sudo python mnexecWrapper.py -h`
+`cd $NFVCONTAINERNET/util;sudo python mnexecWrapper.py -l`
+`cd $NFVCONTAINERNET/util;sudo python mnexecWrapper.py -n <node_name> -cmd <cmd>`
 ### Enforce switch-controller assignment based on /home/mininet/GIT/NFV_Containernet/Controllers/cc_client/switch_controller_config.json
-`cd /home/mininet/GIT/NFV_Containernet/BaysianOptimization; sudo python mininetChangeAssignment.py`
+`cd $NFVCONTAINERNET/BaysianOptimization; sudo python mininetChangeAssignment.py`
 
 
 ### View log of c0
