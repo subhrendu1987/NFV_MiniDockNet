@@ -51,7 +51,7 @@ class DockerRyu( Docker, RemoteController ):
     def start( self ):
         pids=Docker.cmd(self,"ps -ef|grep 'ryu-manager'|awk '{print $2}'|xargs kill -9")
         #Docker.start(self)
-        #cd /Shared; python ryu/bin/ryu-manager --observe-links --ofp-tcp-listen-port 6600 --wsapi-port 9100 ryu.app.ofctl_rest ryu/ryu/app/simple_switch_rest_13.py
+        #cd /Shared; python ryu/bin/ryu-manager --observe-links --ofp-tcp-listen-port 6600 --wsapi-port 9100 ryu/ryu/app/ofctl_rest.py ryu/ryu/app/simple_switch_rest_13.py
         RyuCommand="python ryu/bin/ryu-manager --observe-links --ofp-tcp-listen-port %d --wsapi-port %d ryu/ryu/app/ofctl_rest.py ryu/ryu/app/simple_switch_rest_13.py"%(self.ofpport,self.wsport)
         Docker.cmd(self,"cd /Shared; nohup %s &"%(RyuCommand))
         RemoteController.__init__(self,self.name,port=self.ofpport,ip=self.exposedIP)
