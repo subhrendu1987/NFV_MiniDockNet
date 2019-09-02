@@ -33,4 +33,4 @@ RUN && cd ryu \
 	&& pip install -r tools/pip-requires \
 	&& python setup.py install
 RUN mv /mnt/ryu /mnt/ryu.old
-#CMD ["sh","-c","ryu/bin/ryu-manager --observe-links --ofp-tcp-listen-port 6600 --wsapi-port 9100 ryu.app.ofctl_rest ryu.app.simple_switch_rest_13"]
+#CMD ["sh","-c","cd /Shared; ryu/bin/ryu-manager --observe-links --ofp-tcp-listen-port 6600 --wsapi-port 9100 ryu.app.ofctl_rest ryu.app.simple_switch_rest_13"]

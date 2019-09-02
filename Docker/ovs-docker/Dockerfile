@@ -32,9 +32,9 @@ FROM ubuntu:trusty
 
 ENV HOME /root
 WORKDIR /root
-ENV http_proxy 'http://172.16.117.50:4128'
-ENV https_proxy 'http://172.16.117.50:4128'
-ENV ftp_proxy 'http://172.16.117.50:4128'
+#ENV http_proxy 'http://172.16.117.50:4128'
+#ENV https_proxy 'http://172.16.117.50:4128'
+#ENV ftp_proxy 'http://172.16.117.50:4128'
 
 RUN apt-get update
 RUN apt-get install -y --no-install-recommends curl

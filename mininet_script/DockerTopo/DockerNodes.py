@@ -3,6 +3,8 @@ from os import environ
 from mininet.log import setLogLevel, info
 import os
 PWD= os.getcwd()
+import os
+
 #RYUDIR = environ[ 'HOME' ] + '/ryu'
 #L2CTLR= PWD + '/../../Controllers/cc_client/layer_2_switch.py'
 #L2CTLR= PWD + '/../../Controllers/L2Controller/topo_learner.py'
@@ -36,18 +38,22 @@ class OriginalRYU( Controller ):
                   ' 1>' + cout + ' 2>' + cout + ' &' )
         self.execed = False
 ###########################################################################################################
+#sudo docker run --name=mn.test -d -v $NFVCONTAINERNET/Shared:~/Shared -p 5000:80 ryu-docker
+
 class DockerRyu( Docker, RemoteController ):
     def __init__( self, name,dimage="ryu-docker",ofpport=6600,wsport=9100,**kwargs ):
         f = os.popen('ifconfig docker0 | grep "inet\ addr" | cut -d: -f2 | cut -d" " -f1')
         self.exposedIP=f.read().strip()
         self.ofpport=6600
         self.wsport=9100
-        Docker.__init__( self, name, dimage, port_bindings={self.ofpport:ofpport,self.wsport:wsport},volumes=["/home/mininet/ScalableSDN/Shared:/mnt/ryu:rw"],**kwargs)
+        Docker.__init__( self, name, dimage, port_bindings={self.ofpport:ofpport,self.wsport:wsport},volumes=["%s/Docker/Shared:/Shared:rw"%(os.environ['NFVCONTAINERNET'])],**kwargs)
     ####################################
     def start( self ):
         pids=Docker.cmd(self,"ps -ef|grep 'ryu-manager'|awk '{print $2}'|xargs kill -9")
         #Docker.start(self)
-        Docker.cmd(self,"nohup ryu/bin/ryu-manager --observe-links --ofp-tcp-listen-port %d --wsapi-port %d ryu.app.ofctl_rest ~/ryu/ryu/app/simple_switch_rest_13.py &"%(self.ofpport,self.wsport))
+        #cd /Shared; python ryu/bin/ryu-manager --observe-links --ofp-tcp-listen-port 6600 --wsapi-port 9100 ryu.app.ofctl_rest ryu/ryu/app/simple_switch_rest_13.py
+        RyuCommand="python ryu/bin/ryu-manager --observe-links --ofp-tcp-listen-port %d --wsapi-port %d ryu/ryu/app/ofctl_rest.py ryu/ryu/app/simple_switch_rest_13.py"%(self.ofpport,self.wsport)
+        Docker.cmd(self,"cd /Shared; nohup %s &"%(RyuCommand))
         RemoteController.__init__(self,self.name,port=self.ofpport,ip=self.exposedIP)
         RemoteController.start(self)
     ####################################

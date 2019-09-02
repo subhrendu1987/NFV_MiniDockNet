@@ -12,10 +12,10 @@ from mininet.topo import Topo
 from mininet.net import Containernet
 from mininet_rest import MininetRest
 from mininet.log import setLogLevel, info
-from mininet.node import Controller, OVSSwitch, RemoteController, OVSKernelSwitch, UserSwitch, Ryu
+#from mininet.node import Controller, OVSSwitch, RemoteController, OVSKernelSwitch, UserSwitch, Ryu
 from mininet.cli import CLI
 from mininet.link import TCLink
-from CustomCtlr import *
+from DockerNodes import *
 from os import environ,system
 import json, itertools, thread,logging,sys
 protocols="OpenFlow10,OpenFlow11,OpenFlow12,OpenFlow13"

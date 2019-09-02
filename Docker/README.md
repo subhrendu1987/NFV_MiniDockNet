@@ -15,7 +15,7 @@ Documents		--> Reports and posters
 `mkdir -f /home/mininet/GIT`
 `git clone https://github.com/subhrendu1987/NFV_Containernet.git`
 ### PATH variable
-`sudo echo 'export NFVCONTAINERNET="/home/mininet/GIT/NFV_Containernet"' >> /etc/environment`
+`NFVCONTAINERNET="/home/mininet/GIT/NFV_Containernet"`
 ## Build Required containers
 ### Create Controller docker
 `sudo docker build $NFVCONTAINERNET/Docker/ryu-docker -t ryu-docker`
