@@ -65,13 +65,18 @@ class DockerRyu( Docker, RemoteController ):
 class OVSDocker( Docker, OVSSwitch ):
     """Open vSwitch Ethernet bridge with Spanning Tree Protocol
        rooted at the first bridge that is created"""
-    def __init__(self,name,**kwargs):
-      Docker.__init__( self, name, dimage="iwaseyusuke/mininet",**kwargs)
+    def __init__(self,name,dimage="switch-docker",**kwargs):
+      Docker.__init__( self, name, dimage=dimage, volumes=["%s/Docker/Shared:/Shared:rw"%(os.environ['NFVCONTAINERNET']),"/var/run/docker.sock:/var/run/docker.sock:rw"],**kwargs)
       OVSSwitch.__init__( self, name,failMode='secure',**kwargs )
       #OVSSwitch.__init__( self, name,stp=True,failMode='secure',datapath='kernel',**kwargs )
     ####################################
     def start(self,controllers ):
       OVSSwitch.sendCmd(self,'service', 'openvswitch-switch', 'start')
+      ''' Do we need it?
+      ovs-vsctl set-manager ptcp:6640
+      bash
+      service openvswitch-switch stop
+      '''
       OVSSwitch.start(self,[])
       self.controllers=controllers
       connections=["tcp:%s:%d"%(c.exposedIP,c.port_bindings[c.port]) for c in controllers ]

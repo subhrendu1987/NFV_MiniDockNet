@@ -1,9 +1,9 @@
 FROM ubuntu:16.04
 # sudo docker build -t ryu-docker:latest ryu-docker
-MAINTAINER Subhrendu Chattopadhyay <subhrendu@@iitg.ac.in>
-ENV http_proxy 'http://172.16.117.50:4128'
-ENV https_proxy 'http://172.16.117.50:4128'
-ENV ftp_proxy 'http://172.16.117.50:4128'
+MAINTAINER Subhrendu Chattopadhyay <subhrendu@iitg.ac.in>
+#ENV http_proxy 'http://172.16.117.50:4128'
+#ENV https_proxy 'http://172.16.117.50:4128'
+#ENV ftp_proxy 'http://172.16.117.50:4128'
 
 EXPOSE 6600 9100
 ENV HOME /root
