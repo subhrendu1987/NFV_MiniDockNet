@@ -15,9 +15,16 @@ from mininet.log import setLogLevel, info
 #from mininet.node import Controller, OVSSwitch, RemoteController, OVSKernelSwitch, UserSwitch, Ryu
 from mininet.cli import CLI
 from mininet.link import TCLink
+from netaddr import IPNetwork
+from mininet.util import ( quietRun, fixLimits, numCores, ensureRoot,
+                           macColonHex, ipStr, ipParse, netParse, ipAdd,
+                           waitListening )
+
 from DockerNodes import *
 from os import environ,system
+from paste.util.multidict import MultiDict
 import json, itertools, thread,logging,sys
+
 protocols="OpenFlow10,OpenFlow11,OpenFlow12,OpenFlow13"
 ##########################################################################################
 class StreamToLogger(object):
@@ -35,8 +42,11 @@ def getVal(d,key):
     return(d[key] if key in d.keys() else None)
 ##########################################################################################
 class ClosTree( Topo ):
-    def __init__( self,racks=6,hostsPerRack=20,ctlrNo = 1,ipBase='11.0.0.1/24'):
+    def __init__( self,racks=6,hostsPerRack=20,ctlrNo = 1,ipBase='11.0.0.1/24',vnfIpBase='11.1.0.0/24'):
         # Initialize topology
+        self.vnfIpBase=vnfIpBase
+        self.vnfNextIP=1
+
         Topo.__init__( self)
         # Topology settings
         #(racks,hostsPerRack,ctlrNo)=(6,20,3)
@@ -58,12 +68,12 @@ class ClosTree( Topo ):
         info("*** DATA PLANE STARTS\n")
         info("*** Add spine switches\n")
         for spine in xrange(1, (spineSwitchNum+1)):
-            s = net.addSwitch("spine"+str(spine), cls=OVSDocker,protocols=protocols)
+            s = net.addSwitch("s.spine"+str(spine), cls=OVSDocker,protocols=protocols)
             spineSwitches.append(s)
 
         info("*** Add leaf/rack switches\n")
         for rack in xrange(1, (rackSwitchNum+1)):
-            s = net.addSwitch("rack"+str(rack+spineSwitchNum),cls=OVSDocker, protocols=protocols)
+            s = net.addSwitch("s.rack"+str(rack+spineSwitchNum),cls=OVSDocker, protocols=protocols)
             rackSwitches.append(s)
 
         info("*** Add inter-switch links\n")
@@ -90,7 +100,22 @@ class ClosTree( Topo ):
         self.hostLinks=hostLinks # Links in ClosTree
         self.c0=net.controllers[0]
         self.controllers=net.controllers
+        self.VNFs=MultiDict()
+        ''' ADD VNFs'''
+        ''' Ping Problem due to different network '''
+        self.addVNF("v1",parentNode=spineSwitches[0], dimage="ubuntu:trusty")
+        self.addVNF("v2",parentNode=spineSwitches[0], dimage="ubuntu:trusty")
+        self.addVNF("v3",parentNode=rackSwitches[0], dimage="ubuntu:trusty")
+        self.addVNF("v4",parentNode=rackSwitches[0], dimage="ubuntu:trusty")
         return
+    ################################################################
+    def getNextVnfIp( self ):
+        ipBaseNum, prefixLen = netParse( self.vnfIpBase )
+        ip = ipAdd( self.vnfNextIP,
+                    ipBaseNum=ipBaseNum,
+                    prefixLen=prefixLen ) + '/%s' % prefixLen
+        self.vnfNextIP += 1
+        return ip
     ################################################################
     def startNetwork(self,SwitchMappingDict=None,REST=False):
         net=self.net
@@ -116,6 +141,17 @@ class ClosTree( Topo ):
         resTemp=[n.cmd('name=\"%s\"'%(n.name)) for n in net.hosts]
         resTemp=[n.cmd('name=\"%s\"'%(n.name)) for n in net.switches]
         resTemp=[n.cmd('name=\"%s\";connect=\"%s:%s:%s\"'%(n.name,n.protocol,n.ip,n.port)) for n in net.controllers]
+        for v in self.VNFs.values():
+            v.setIP(self.getNextVnfIp())
+        ipBase=str(IPNetwork(self.vnfIpBase).network)
+        subNetMask=str(IPNetwork(self.vnfIpBase).netmask)
+        for h in self.hosts:
+            h.cmdPrint("route add -net %s netmask %s dev %s"%(ipBase,subNetMask,h.intfs[0].name))
+        ipBase=str(IPNetwork(self.net.ipBase).network)
+        subNetMask=str(IPNetwork(self.net.ipBase).netmask)
+        for v in self.VNFs.values():
+            v.cmdPrint("route add -net %s netmask %s dev %s"%(ipBase,subNetMask,v.intfs[0].name))
+
         if(REST):
             info("*** Super controller WSGI help http://0.0.0.0:8081/index\n")
             self.monitor=thread.start_new_thread(self.startMininetRest,())
@@ -137,4 +173,12 @@ class ClosTree( Topo ):
         info("*** Stopping network\n")
         self.net.stop()
         system("mn -c")
+##########################################################################################
+    def addVNF( self, name, parentNode=None, **params ):
+        if(parentNode):
+            v= self.net.addDocker( name, **params)
+            self.net.addLink(parentNode,v,cls=TCLink)
+            self.VNFs.add(parentNode,v)
+            #print(self.VNFs)
+            return v
 ##########################################################################################

@@ -1,3 +1,19 @@
+# Flow analysis through terminal
+## Print all flows of a switch
+`ovs-ofctl dump-flows $(ovs-vsctl show |grep Bridge| awk -F ' '  '{print $2}'|sed 's/"//g')`
+## Execute CMD in dockers
+`cd $NFVCONTAINERNET/mininet_script/DockerTopo; source lib.sh`
+### All nodes
+`exec_all "ifconfig eth0"`
+### All hosts
+`exec_hosts "ifconfig eth0"`
+### All switches
+`exec_switches "ifconfig eth0"`
+### All vnfs
+`exec_vnfs "ifconfig eth0"`
+### All ctlrs
+`exec_ctlrs "ifconfig eth0"`
+
 # REST requests
 ## GET Requests
 ### Switches

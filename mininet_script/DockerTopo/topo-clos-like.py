@@ -40,6 +40,7 @@ if __name__ == '__main__':
     else:
         SwitchMappingDict=None
     clos=ClosTree(racks=2,hostsPerRack=2)
+    #clos.addVNF(name="Blank",parentNode=clos.net.getNodeByName("spine1"),dimage="ubuntu:trusty")
     #net=clos.startNetwork(SwitchMappingDict=SwitchMappingDict)
     net=clos.startNetwork(REST=False)
 
@@ -50,6 +51,7 @@ if __name__ == '__main__':
     netDict=H.copy()
     netDict.update(S)
     netDict.update(C)
+    ###############################################################
     '''
     with open('mnexecData.json', 'w') as fp:
         json.dump(netDict, fp)
