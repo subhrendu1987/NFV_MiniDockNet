@@ -10,6 +10,10 @@ vnfs=( $(sudo docker ps -a |grep -e 'mn.v' | awk -F ' ' '{print $NF}') )
 ctlrs=( $(sudo docker ps -a |grep -e 'mn.c' | awk -F ' ' '{print $NF}') )
 switches=( $(sudo docker ps -a |grep -e 'mn.s' | awk -F ' ' '{print $NF}') )
 ################################################################
+exec_in(){
+   	sudo docker exec $1 bash -c "$2"
+}
+################################################################
 exec_all(){
 	for i in "${nodes[@]}"
 	do
@@ -42,7 +46,7 @@ exec_switches(){
 	do
    	: 
    	echo "*** $i"
-   	sudo docker exec $i bash -c "$1"
+   	sudo docker exec $i /bin/sh -c "$1"
 done
 }
 ################################################################
@@ -51,6 +55,6 @@ exec_ctlrs(){
 	do
    	: 
    	echo "*** $i"
-   	sudo docker exec $i bash -c "$1"
+   	sudo docker exec $i /bin/sh -c "$1"
 done
 }

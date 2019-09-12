@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 # Copyright (C) 2014 Nippon Telegraph and Telephone Corporation.
 # Copyright (C) 2014 YAMAMOTO Takashi <yamamoto at valinux co jp>
 #
@@ -15,15 +13,3 @@
 # implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-import sys, os
-RYU_MAN_PATH=os.path.realpath(__file__)
-RYU_PATH, tail = os.path.split(RYU_MAN_PATH)
-RYU_PATH, tail = os.path.split(RYU_PATH)
-print(RYU_PATH)
-sys.path.append(RYU_PATH)
-import ryu
-''' RUN RYU FROM SOURCE CODE '''
-
-from ryu.cmd.ryu_base import main
-main()

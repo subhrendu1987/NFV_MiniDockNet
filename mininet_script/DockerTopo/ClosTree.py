@@ -64,7 +64,8 @@ class ClosTree( Topo ):
         info("*** CONTROL PLANE STARTS\n")
         info("*** Add Central Controller for debugging\n")
         port_bindings={6600:6600,9100:9100}
-        c0=net.addController(name="c0",controller=DockerRyu,ofpport=getVal(port_bindings,6600),wsport=getVal(port_bindings,9100))
+        #c0=net.addController(name="c0",controller=DockerRyu,ofpport=getVal(port_bindings,6600),wsport=getVal(port_bindings,9100))
+        c0=net.addController(name="c0",controller=RemoteController,ip="182.26.0.1",port=6600)
         info("*** DATA PLANE STARTS\n")
         info("*** Add spine switches\n")
         for spine in xrange(1, (spineSwitchNum+1)):
@@ -98,7 +99,7 @@ class ClosTree( Topo ):
         self.spineSwitches = spineSwitches # Edge switches in ClosTree
         self.hosts=hosts # Hosts in ClosTree
         self.hostLinks=hostLinks # Links in ClosTree
-        self.c0=net.controllers[0]
+        self.c0=c0
         self.controllers=net.controllers
         self.VNFs=MultiDict()
         ''' ADD VNFs'''
@@ -123,11 +124,12 @@ class ClosTree( Topo ):
         #if self.c0 is not None:
         #    self.c0.start()
         for c in net.controllers:
-            c.start()
+            c.start(appNo="l2_host") if(isinstance(c,DockerRyu)) else c.start()
+            #c.start(appNo=["l2"|"l2_gui"|"l3"|"l2_host"])
         if(SwitchMappingDict==None):
             info("*** Add all switches to first available controller\n")
             for sw in net.switches:
-                sw.start([self.c0])
+                sw.start([self.c0]) if(self.c0) else sw.start()
         else:
             info("*** Use switch to controller mapping from %s\n"%(config_file))
             for sw in SwitchMappingDict.keys():

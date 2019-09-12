@@ -48,11 +48,17 @@ class DockerRyu( Docker, RemoteController ):
         self.wsport=9100
         Docker.__init__( self, name, dimage, port_bindings={self.ofpport:ofpport,self.wsport:wsport},volumes=["%s/Docker/Shared:/Shared:rw"%(os.environ['NFVCONTAINERNET']), "/dev:/dev:rw", "/lib/modules:/lib/modules:rw"],**kwargs)
     ####################################
-    def start( self ):
+    def start( self,appNo="l2" ):
         pids=Docker.cmd(self,"ps -ef|grep 'ryu-manager'|awk '{print $2}'|xargs kill -9")
         #Docker.start(self)
         #cd /Shared; python ryu/bin/ryu-manager --observe-links --ofp-tcp-listen-port 6600 --wsapi-port 9100 ryu/ryu/app/ofctl_rest.py ryu/ryu/app/simple_switch_rest_13.py
-        RyuCommand="python ryu/bin/ryu-manager --observe-links --ofp-tcp-listen-port %d --wsapi-port %d ryu/ryu/app/ofctl_rest.py ryu/ryu/app/simple_switch_rest_13.py"%(self.ofpport,self.wsport)
+        CMDdict={"l2":"python ryu/bin/ryu-manager --verbose --observe-links --ofp-tcp-listen-port %d --wsapi-port %d ryu.app.ofctl_rest ryu.app.simple_switch_rest_13",
+        "l2_gui":"python ryu/bin/ryu-manager --verbose --observe-links --ofp-tcp-listen-port %d --wsapi-port %d ryu.app.ofctl_rest ryu.app.simple_switch_13 ryu.app.gui_topology.gui_topology",
+        "l3":"python ryu/bin/ryu-manager --verbose --observe-links --ofp-tcp-listen-port %d --wsapi-port %d ryu.app.myapp.l3_switch_13",
+        "l3_host":"python ryu/bin/ryu-manager --verbose --observe-links --ofp-tcp-listen-port %d --wsapi-port %d ryu.app.myapp.l3_switch_13 ryu.app.rest_topology"
+        }
+        RyuCommand=CMDdict[appNo]%(self.ofpport,self.wsport)
+        info("*** RYU-App:"+appNo+"\n")
         Docker.cmd(self,"cd /Shared; nohup %s &"%(RyuCommand))
         RemoteController.__init__(self,self.name,port=self.ofpport,ip=self.exposedIP)
         RemoteController.start(self)
@@ -79,7 +85,8 @@ class OVSDocker( Docker, OVSSwitch ):
       '''
       OVSSwitch.start(self,[])
       self.controllers=controllers
-      connections=["tcp:%s:%d"%(c.exposedIP,c.port_bindings[c.port]) for c in controllers ]
+      connections=["tcp:%s:%d"%(c.exposedIP,c.port_bindings[c.port]) if(isinstance(c,DockerRyu)) else "tcp:%s:%d"%(c.ip,c.port) for c in controllers ]
+      print(connections)
       OVSSwitch.vsctl(self,"set-controller %s %s"%(self.name," ".join(connections)))
     ####################################
     def addNFV(self,dimage=None):

@@ -30,7 +30,6 @@ RUN ln -s /mnt/ryu
 RUN cd ryu && pip install -r /mnt/ryu/tools/pip-requires
 RUN rm -rf /var/lib/apt/lists/* \
 RUN && cd ryu \
-	&& pip install -r tools/pip-requires \
-	&& python setup.py install
-RUN mv /mnt/ryu /mnt/ryu.old
+	&& pip install -r tools/pip-requires
+#RUN mv /mnt/ryu /mnt/ryu.old
 #CMD ["sh","-c","cd /Shared; ryu/bin/ryu-manager --observe-links --ofp-tcp-listen-port 6600 --wsapi-port 9100 ryu.app.ofctl_rest ryu.app.simple_switch_rest_13"]
