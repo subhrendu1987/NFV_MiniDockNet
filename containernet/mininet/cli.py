@@ -43,7 +43,7 @@ from mininet.util import ( quietRun, dumpNodeConnections,
 class CLI( Cmd ):
     "Simple command-line interface to talk to nodes."
 
-    prompt = 'containernet> '
+    prompt = 'containernetDocker> '
 
     def __init__( self, mininet, stdin=sys.stdin, script=None ):
         """Start and run interactive or batch mode CLI
@@ -194,7 +194,6 @@ class CLI( Cmd ):
             output( str( e ) + '\n' )
 
     # pylint: enable=broad-except,exec-used
-
     def do_pingall( self, line ):
         "Ping between all hosts."
         self.mn.pingAll( line )
@@ -288,6 +287,12 @@ class CLI( Cmd ):
                 else:
                     node = self.mn[ arg ]
                     self.mn.terms += makeTerms( [ node ], term = term )
+    
+    def do_ipython( self, line ):
+        "Open ipython console from here. "
+        #self.mn.pingAll( line )
+        import IPython
+        IPython.embed()
 
     def do_x( self, line ):
         """Create an X11 tunnel to the given node,

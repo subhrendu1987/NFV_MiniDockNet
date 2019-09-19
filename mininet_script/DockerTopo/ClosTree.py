@@ -11,7 +11,7 @@ Pass '--topo=fattree' from the command line
 from mininet.topo import Topo
 from mininet.net import Containernet
 from mininet_rest import MininetRest
-from mininet.log import setLogLevel, info
+from mininet.log import setLogLevel, info, output, error
 #from mininet.node import Controller, OVSSwitch, RemoteController, OVSKernelSwitch, UserSwitch, Ryu
 from mininet.cli import CLI
 from mininet.link import TCLink
@@ -60,12 +60,16 @@ class ClosTree( Topo ):
         hostLinks=[]
 
         #net = Containernet(controller=Controller)
-        net = Containernet(ipBase=ipBase)
+        net = Containernet(ipBase=ipBase,autoStaticArp=True)
         info("*** CONTROL PLANE STARTS\n")
-        info("*** Add Central Controller for debugging\n")
+        
         port_bindings={6600:6600,9100:9100}
-        #c0=net.addController(name="c0",controller=DockerRyu,ofpport=getVal(port_bindings,6600),wsport=getVal(port_bindings,9100))
-        c0=net.addController(name="c0",controller=RemoteController,ip="182.26.0.1",port=6600)
+        if(ctlrNo):
+            info("*** Add Central Controller for debugging\n")
+            c0=net.addController(name="c0",controller=DockerRyu,ofpport=getVal(port_bindings,6600),wsport=getVal(port_bindings,9100))
+        else:
+            info("*** Add Remote Controller for debugging\n")
+            c0=net.addController(name="c0",controller=RemoteController,ip="182.26.0.1",port=6600)
         info("*** DATA PLANE STARTS\n")
         info("*** Add spine switches\n")
         for spine in xrange(1, (spineSwitchNum+1)):
@@ -104,11 +108,24 @@ class ClosTree( Topo ):
         self.VNFs=MultiDict()
         ''' ADD VNFs'''
         ''' Ping Problem due to different network '''
-        self.addVNF("v1",parentNode=spineSwitches[0], dimage="ubuntu:trusty")
-        self.addVNF("v2",parentNode=spineSwitches[0], dimage="ubuntu:trusty")
-        self.addVNF("v3",parentNode=rackSwitches[0], dimage="ubuntu:trusty")
-        self.addVNF("v4",parentNode=rackSwitches[0], dimage="ubuntu:trusty")
+        vnfImage="vnf:latest"
+        #vnfImage="tcpdump:latest"
+        #vnfImage="ubuntu:trusty"
+        #v=self.net.addDocker("v5",cls=VNF,dimage=vnfImage)
+        #v.addParent(parentNode=rackSwitches[0])
+        #self.VNFs.add(parentNode,v)
+        self.addVNF("v1",parentNode=rackSwitches[0], dimage=vnfImage)
+        self.addVNF("v2",parentNode=rackSwitches[0], dimage=vnfImage)
+        self.addVNF("v3",parentNode=rackSwitches[1], dimage=vnfImage)
+        self.addVNF("v4",parentNode=rackSwitches[1], dimage=vnfImage)
         return
+    ################################################################
+    def getCurrVnfIp( self ):
+        ipBaseNum, prefixLen = netParse( self.vnfIpBase )
+        ip = ipAdd( self.vnfNextIP,
+                    ipBaseNum=ipBaseNum,
+                    prefixLen=prefixLen ) + '/%s' % prefixLen
+        return ip
     ################################################################
     def getNextVnfIp( self ):
         ipBaseNum, prefixLen = netParse( self.vnfIpBase )
@@ -134,26 +151,41 @@ class ClosTree( Topo ):
             info("*** Use switch to controller mapping from %s\n"%(config_file))
             for sw in SwitchMappingDict.keys():
                 net.getNodeByName(sw).start([net.getNodeByName(SwitchMappingDict[sw])])
-        info("*** Set arp table\n")
-        for host in self.hosts:
-            for host1 in self.hosts:
-                if host.name != host1.name:
-                    host.setARP(host1.IP(), host1.MAC())
         info("*** Create shell variable\n")
         resTemp=[n.cmd('name=\"%s\"'%(n.name)) for n in net.hosts]
         resTemp=[n.cmd('name=\"%s\"'%(n.name)) for n in net.switches]
         resTemp=[n.cmd('name=\"%s\";connect=\"%s:%s:%s\"'%(n.name,n.protocol,n.ip,n.port)) for n in net.controllers]
+        #####################################################################
+        # VNF network configuration
         for v in self.VNFs.values():
-            v.setIP(self.getNextVnfIp())
+            node_ip=self.getNextVnfIp()
+            for i,i_no in enumerate(v.intfs.keys()):
+                #Assign IP to outgoing intfs and in coming intfs
+                intf_ip=".".join([node_ip.split(".")[0]]+[str(int(node_ip.split(".")[1])+i)]+node_ip.split(".")[2:])
+                v.setIP(intf_ip,intf=v.intfs[i_no])
+                #info(v.intfs[i_no],self.getCurrVnfIp())
+        #####################################
         ipBase=str(IPNetwork(self.vnfIpBase).network)
         subNetMask=str(IPNetwork(self.vnfIpBase).netmask)
+        ipBase2=".".join([ipBase.split(".")[0]]+[str(int(ipBase.split(".")[1])+1)]+ipBase.split(".")[2:])
+        info("*** Set VNFs routes in all hosts\n")
+        info("*** %s and %s \n"%(ipBase,ipBase2))
         for h in self.hosts:
-            h.cmdPrint("route add -net %s netmask %s dev %s"%(ipBase,subNetMask,h.intfs[0].name))
+            h.cmd("route add -net %s netmask %s dev %s"%(ipBase,subNetMask,h.intfs[0].name))
+            h.cmd("route add -net %s netmask %s dev %s"%(ipBase2,subNetMask,h.intfs[0].name))
+        #####################################    
         ipBase=str(IPNetwork(self.net.ipBase).network)
         subNetMask=str(IPNetwork(self.net.ipBase).netmask)
+        info("*** Set hosts routes in all VNFs\n")
         for v in self.VNFs.values():
-            v.cmdPrint("route add -net %s netmask %s dev %s"%(ipBase,subNetMask,v.intfs[0].name))
-
+            v.cmd("route add -net %s netmask %s dev %s"%(ipBase,subNetMask,v.intfs[0].name))
+        #####################################################################
+        info("*** Set arp table\n")
+        for host in self.net.hosts:
+            for dest in self.net.hosts:
+                if host.name != dest.name:
+                    for dst_intf in dest.intfs.values():
+                        host.setARP(dest.IP(intf=dst_intf), dest.MAC(intf=dst_intf))
         if(REST):
             info("*** Super controller WSGI help http://0.0.0.0:8081/index\n")
             self.monitor=thread.start_new_thread(self.startMininetRest,())
@@ -176,11 +208,54 @@ class ClosTree( Topo ):
         self.net.stop()
         system("mn -c")
 ##########################################################################################
-    def addVNF( self, name, parentNode=None, **params ):
+    def addVNF( self, name, parentNode=None,net=None,dimage="vnf:latest",**params ):
+        if(not net):
+            net=self.net
+        v=self.net.addDocker( name,dimage=dimage, **params)
         if(parentNode):
-            v= self.net.addDocker( name, **params)
-            self.net.addLink(parentNode,v,cls=TCLink)
+            l1=net.addLink(parentNode,v,cls=TCLink)
+            l2=net.addLink(parentNode,v,cls=TCLink)
             self.VNFs.add(parentNode,v)
             #print(self.VNFs)
             return v
+##########################################################################################
+    def pingAllIntfs( self, net=None):
+        """Ping between all specified hosts.
+           hosts: list of hosts
+           timeout: time to wait for a response, as string
+           manualdestip: sends pings from each h in hosts to manualdestip
+           returns: ploss packet loss percentage"""
+        # should we check if running?
+        packets = 0
+        lost = 0
+        ploss = None
+        net= net if(net) else self.net
+        hosts = net.hosts
+        output( '*** Ping: testing ping reachability for each interface\n' )
+        for node in hosts:
+            output( '%s -> ' % node.name )
+            for dest in hosts:
+                if node != dest:
+                    for intf in dest.intfs.values():
+                        result = node.cmd( 'ping -c1 %s' %
+                                           (dest.IP(intf=intf)) )
+                        sent, received = net._parsePing( result )
+                        packets += sent
+                        if received > sent:
+                            error( '*** Error: received too many packets' )
+                            error( '%s' % result )
+                            node.cmdPrint( 'route' )
+                            exit( 1 )
+                        lost += sent - received
+                        output( ( '%s ' % intf.name ) if received else 'X ' )
+            output( '\n' )
+        if packets > 0:
+            ploss = 100.0 * lost / packets
+            received = packets - lost
+            output( "*** Results: %i%% dropped (%d/%d received)\n" %
+                    ( ploss, received, packets ) )
+        else:
+            ploss = 0
+            output( "*** Warning: No packets sent\n" )
+        return ploss
 ##########################################################################################

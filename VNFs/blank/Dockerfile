@@ -1,4 +1,4 @@
-FROM ubuntu:16.04
+FROM ryu-docker:latest
 # sudo docker build -t vnf:latest vnf
 MAINTAINER Subhrendu Chattopadhyay <subhrendu@iitg.ac.in>
 #ENV http_proxy 'http://172.16.117.50:4128'
@@ -12,10 +12,8 @@ WORKDIR /root
 
 ENV HOME /root
 WORKDIR /root
-RUN apt-get update && apt-get install -y --no-install-recommends software-properties-common && add-apt-repository ppa:nm-l2tp/network-manager-l2tp && apt-get install -y --no-install-recommends network-manager-l2tp \
-	network-manager-l2tp-gnome \
-	net-tools \
-	telnet\
-	inetutils*
 
+RUN apt-get update && apt-get install -y --no-install-recommends tcpdump 
+#RUN apt-get update && apt-get install -y --no-install-recommends libssl1.0.0 libssl-dev
+RUN mv /usr/sbin/tcpdump /usr/bin/tcpdump
 #CMD ["sh","-c","cd /Shared; ryu/bin/ryu-manager --observe-links --ofp-tcp-listen-port 6600 --wsapi-port 9100 ryu.app.ofctl_rest ryu.app.simple_switch_rest_13"]

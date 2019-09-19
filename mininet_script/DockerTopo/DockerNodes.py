@@ -1,4 +1,5 @@
 from mininet.node import *
+from mininet.link import TCLink
 from os import environ
 from mininet.log import setLogLevel, info
 import os
@@ -103,7 +104,22 @@ class OVSDocker( Docker, OVSSwitch ):
         OVSSwitch.cmd(self,"ovs-ofctl del-flows %s 'table=%s'"%(self.name,tab))
       OVSSwitch.vsctl(self,"set-controller %s %s"%(self.name," ".join(connections)))
 ###########################################################################################################
+class VNF( Docker, Host ):
+    """VNF as a host"""
+    def __init__(self,name,dimage="vnf:latest",**kwargs):
+      Docker.__init__(self, name, dimage=dimage, volumes=["%s/Docker/Shared:/Shared:rw"%(os.environ['NFVCONTAINERNET']),"/var/run/docker.sock:/var/run/docker.sock:rw", "/dev:/dev:rw", "/lib/modules:/lib/modules:rw"],**kwargs)
+      Host.__init__(name)
+      self.parentNode=None      
+    ####################################
+    def addParent(self,parentNode=None):
+      self.parentNode=parentNode
+    ####################################
+
+###########################################################################################################
+
+
+
 #controllers={ 'CustomL1': CustomL1,'CustomL2': CustomL2,"OriginalRYU":OriginalRYU}
 controllers={ 'DockerRyu': DockerRyu,"OriginalRYU":OriginalRYU}
 switches={ "OVSDocker":OVSDocker}
-#nfvs={ "VNF":VNF}
+nfvs={ "VNF":VNF}

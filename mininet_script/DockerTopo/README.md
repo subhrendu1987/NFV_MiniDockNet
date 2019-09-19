@@ -39,4 +39,8 @@
 # Dev Notes
 * RYU command 
 	`python ryu/bin/ryu-manager --verbose --observe-links --ofp-tcp-listen-port 6600 --wsapi-port 9100 ryu.app.myapp.l3_switch_13`
-* 
+	`sudo mn --topo linear,10 --mac --controller=remote,ip=10.0.2.15,port=6600 --switch ovs,protocols=OpenFlow13`
+* WGET path checker
+	`http://172.16.117.50:9110/l3switch/findpath/11.1.0.1/11.2.0.1`
+* Tcpdump in node
+	`tcpdump -i any -e icmp[icmptype] == 8 or icmp[icmptype] == 0`

@@ -60,7 +60,7 @@ class Port(object):
     # This is data class passed by EventPortXXX
     def __init__(self, dpid, ofproto, ofpport):
         super(Port, self).__init__()
-
+        self.node=None
         self.dpid = dpid
         self._ofproto = ofproto
         self._config = ofpport.config
@@ -90,7 +90,10 @@ class Port(object):
 
     # for Switch.del_port()
     def __eq__(self, other):
-        return self.dpid == other.dpid and self.port_no == other.port_no
+        if(isinstance(other,type(self))):
+            return self.dpid == other.dpid and self.port_no == other.port_no
+        else:
+            return(False)
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -114,6 +117,7 @@ class Switch(object):
 
     def add_port(self, ofpport):
         port = Port(self.dp.id, self.dp.ofproto, ofpport)
+        port.node=self
         if not port.is_reserved():
             self.ports.append(port)
 
@@ -148,7 +152,10 @@ class Link(object):
 
     # this type is used for key value of LinkState
     def __eq__(self, other):
-        return self.src == other.src and self.dst == other.dst
+        if(isinstance(other,type(self))):
+            return self.src == other.src and self.dst == other.dst
+        else:
+            return(False)
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -165,6 +172,7 @@ class Host(object):
     def __init__(self, mac, port):
         super(Host, self).__init__()
         self.port = port
+        port.node=self
         self.mac = mac
         self.ipv4 = []
         self.ipv6 = []
@@ -177,7 +185,10 @@ class Host(object):
         return d
 
     def __eq__(self, host):
-        return self.mac == host.mac and self.port == host.port
+        if(isinstance(host,type(self))):
+            return self.mac == host.mac and self.port == host.port
+        else:
+            return(False)
 
     def __str__(self):
         msg = 'Host<mac=%s, port=%s,' % (self.mac, str(self.port))
