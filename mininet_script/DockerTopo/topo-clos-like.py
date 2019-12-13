@@ -39,7 +39,8 @@ if __name__ == '__main__':
             SwitchMappingDict = json.load(f)
     else:
         SwitchMappingDict=None
-    clos=ClosTree(racks=2,hostsPerRack=2)
+    clos=ClosTree(racks=2,hostsPerRack=2,ctlrNo=0)
+    #clos.addVNF(name="Blank",parentNode=clos.net.getNodeByName("spine1"),dimage="ubuntu:trusty")
     #net=clos.startNetwork(SwitchMappingDict=SwitchMappingDict)
     net=clos.startNetwork(REST=False)
 
@@ -50,6 +51,7 @@ if __name__ == '__main__':
     netDict=H.copy()
     netDict.update(S)
     netDict.update(C)
+    ###############################################################
     '''
     with open('mnexecData.json', 'w') as fp:
         json.dump(netDict, fp)
@@ -60,10 +62,24 @@ if __name__ == '__main__':
         fp.close()
     '''
     ###############################################################
-    info("*** Running CLI\n")
-    # net.getNodeByName("h1").cmdPrint("")
-    CLI(net)
+    repeat=True
+    while(repeat):
+        info("*** Running Ipython\n")
+        import IPython
+        IPython.embed()
+        ###############################################################
+        info("*** Running CLI\n")
+        # net.getNodeByName("h1").cmdPrint("")
+        # clos.pingAllIntfs()
+        CLI(net)
+        try:
+            choice=str(raw_input("Want to repeat? (N|y)\t:"))
+        except SyntaxError:
+            choice= None
+        #print(choice)
+        repeat= True if(choice=="y") else False
     clos.stop()
+    ###############################################################
     with open('mnexecData.json', 'w') as fp:
         json.dump({"EMPTY":True}, fp)
         fp.close()

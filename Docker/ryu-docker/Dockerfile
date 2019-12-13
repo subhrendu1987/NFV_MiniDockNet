@@ -1,9 +1,9 @@
 FROM ubuntu:16.04
 # sudo docker build -t ryu-docker:latest ryu-docker
-MAINTAINER Subhrendu Chattopadhyay <subhrendu@@iitg.ac.in>
-ENV http_proxy 'http://172.16.117.50:4128'
-ENV https_proxy 'http://172.16.117.50:4128'
-ENV ftp_proxy 'http://172.16.117.50:4128'
+MAINTAINER Subhrendu Chattopadhyay <subhrendu@iitg.ac.in>
+#ENV http_proxy 'http://172.16.117.50:4128'
+#ENV https_proxy 'http://172.16.117.50:4128'
+#ENV ftp_proxy 'http://172.16.117.50:4128'
 
 EXPOSE 6600 9100
 ENV HOME /root
@@ -30,7 +30,6 @@ RUN ln -s /mnt/ryu
 RUN cd ryu && pip install -r /mnt/ryu/tools/pip-requires
 RUN rm -rf /var/lib/apt/lists/* \
 RUN && cd ryu \
-	&& pip install -r tools/pip-requires \
-	&& python setup.py install
-RUN mv /mnt/ryu /mnt/ryu.old
-#CMD ["sh","-c","ryu/bin/ryu-manager --observe-links --ofp-tcp-listen-port 6600 --wsapi-port 9100 ryu.app.ofctl_rest ryu.app.simple_switch_rest_13"]
+	&& pip install -r tools/pip-requires
+#RUN mv /mnt/ryu /mnt/ryu.old
+#CMD ["sh","-c","cd /Shared; ryu/bin/ryu-manager --observe-links --ofp-tcp-listen-port 6600 --wsapi-port 9100 ryu.app.ofctl_rest ryu.app.simple_switch_rest_13"]

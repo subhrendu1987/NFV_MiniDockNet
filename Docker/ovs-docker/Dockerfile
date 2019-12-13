@@ -28,13 +28,13 @@
 #	sudo docker run -t -i --name <ctlr_name> ryu-docker /bin/bash -p 6600:<ofp_port> -p 9100:<wsgi_port>
 
 ###########################################################################################################################################
-FROM ubuntu:trusty
+FROM ubuntu:latest
 
 ENV HOME /root
 WORKDIR /root
-ENV http_proxy 'http://172.16.117.50:4128'
-ENV https_proxy 'http://172.16.117.50:4128'
-ENV ftp_proxy 'http://172.16.117.50:4128'
+#ENV http_proxy 'http://172.16.117.50:4128'
+#ENV https_proxy 'http://172.16.117.50:4128'
+#ENV ftp_proxy 'http://172.16.117.50:4128'
 
 RUN apt-get update
 RUN apt-get install -y --no-install-recommends curl

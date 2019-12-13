@@ -15,7 +15,7 @@ Documents		--> Reports and posters
 `mkdir -f /home/mininet/GIT`
 `git clone https://github.com/subhrendu1987/NFV_Containernet.git`
 ### PATH variable
-`NFVCONTAINERNET="/home/mininet/GIT/NFV_Containernet"`
+`sudo echo 'export NFVCONTAINERNET="/home/mininet/GIT/NFV_Containernet"' >> /etc/environment`
 ## Build Required containers
 ### Create Controller docker
 `sudo docker build $NFVCONTAINERNET/Docker/ryu-docker -t ryu-docker`
@@ -27,14 +27,16 @@ Documents		--> Reports and posters
 ### Check mininet stat using REST
 `http://172.16.117.50:8081/switches`
 
-### Execute command in a node
+## Execute command in a node
+### Dockernet
+`sudo docker exec -it <node_name> <cmd>`
+### Standard mininet
 `cd $NFVCONTAINERNET/util;sudo python mnexecWrapper.py -h`
 `cd $NFVCONTAINERNET/util;sudo python mnexecWrapper.py -l`
 `cd $NFVCONTAINERNET/util;sudo python mnexecWrapper.py -n <node_name> -cmd <cmd>`
-### Enforce switch-controller assignment based on /home/mininet/GIT/NFV_Containernet/Controllers/cc_client/switch_controller_config.json
+
+## Enforce switch-controller assignment based on /home/mininet/GIT/NFV_Containernet/Controllers/cc_client/switch_controller_config.json
 `cd $NFVCONTAINERNET/BaysianOptimization; sudo python mininetChangeAssignment.py`
-
-
 ### View log of c0
 `sudo docker run --name mn.c0 -it ryu-docker /bin/bash`
 `sudo docker logs --follow $(sudo docker inspect --format="{{.Id}}" mn.c0)`
