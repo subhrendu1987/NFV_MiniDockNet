@@ -10,14 +10,15 @@
 * Documents		--> Reports and posters
 ## Setup instructions
 ### Required packages
-* `sudo apt-get install -y docker`
+* `sudo apt-get install -y docker curl`
+* `sudo curl -sSL https://get.docker.com/ | sh`
 * `sudo apt-get install -y python-bottle python-bottledaemon python-numpy python-psutil python-matplotlib python-scipy python-termcolor`
 ### Required python packages
 `sudo -E pip install bottle, bottledaemon numpy psutil matplotlib scipy termcolor`
 
 
 ### Git Repo
-*`mkdir -f /home/mininet/GIT`
+* `mkdir -f /home/mininet/GIT`
 * `git clone https://github.com/subhrendu1987/NFV_Containernet.git`
 ### PATH variable
 `sudo echo 'export NFVCONTAINERNET="/home/mininet/GIT/NFV_Containernet"' >> /etc/environment`
