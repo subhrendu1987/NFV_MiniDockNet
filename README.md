@@ -1,24 +1,24 @@
 ## Folder Structure
-RawTopology		--> Topology Store for experiments
-Controllers		--> L1 and L2 Wrappers to be used for mininet automated controller setup
-mininet_script	--> Mininet driver scripts for experimentation
-scikit-optimize	--> Python library used for BO
-ryu + ryu.diff	--> L2 controller implementation
-BaysianOptimization	--> BO finds the optimum switch controller assignment
-results			--> 
-util			--> Plots generation from results
-Documents		--> Reports and posters
+* RawTopology		--> Topology Store for experiments
+* Controllers		--> L1 and L2 Wrappers to be used for mininet automated controller setup
+* mininet_script	--> Mininet driver scripts for experimentation
+* scikit-optimize	--> Python library used for BO
+* ryu + ryu.diff	--> L2 controller implementation
+* BaysianOptimization	--> BO finds the optimum switch controller assignment
+* results			--> 
+* util			--> Plots generation from results
+* Documents		--> Reports and posters
 ## Setup instructions
 ### Required packages
-`sudo apt-get install -y docker`
-`sudo apt-get install -y python-bottle python-bottledaemon python-numpy python-psutil python-matplotlib python-scipy python-termcolor`
+* `sudo apt-get install -y docker`
+* `sudo apt-get install -y python-bottle python-bottledaemon python-numpy python-psutil python-matplotlib python-scipy python-termcolor`
 ### Required python packages
 `sudo -E pip install bottle, bottledaemon numpy psutil matplotlib scipy termcolor`
 
 
 ### Git Repo
-`mkdir -f /home/mininet/GIT`
-`git clone https://github.com/subhrendu1987/NFV_Containernet.git`
+*`mkdir -f /home/mininet/GIT`
+* `git clone https://github.com/subhrendu1987/NFV_Containernet.git`
 ### PATH variable
 `sudo echo 'export NFVCONTAINERNET="/home/mininet/GIT/NFV_Containernet"' >> /etc/environment`
 ## Build Required containers
